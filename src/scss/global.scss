@@ -1,0 +1,216 @@
+@font-face {
+  font-family: 'Mona Sans';
+  src:
+    url('/fonts/MonaSans.woff2') format('woff2 supports variations'),
+    url('/fonts/MonaSans.woff2') format('woff2-variations');
+  font-weight: 200;
+  font-stretch: 75% 125%;
+}
+
+
+body {
+  background-color: #000;
+  padding: 0;
+  margin: 0;
+  color: #fff;
+  font-family: 'Mona Sans';
+  letter-spacing: 0.1em;
+}
+
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  transition: opacity 0.3s 0.3s ease-in;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.container{
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.5s;
+  background: #000;
+  &.white{
+    background: #fff;
+  
+  }
+}
+
+
+.webgl-wrapper{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  transition: opacity 0.5s;
+
+}
+ul{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+
+input[type="radio"], input[type="checkbox"] {
+  display: none;
+}
+
+label {
+  cursor: pointer;
+  position: relative;
+  padding-left: 1rem;
+}
+
+.radioBtn{
+  label::before {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: transparent;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+
+    .white &{
+      border: 1px solid #000;
+    }
+  }
+  
+  label::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #fff;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%) scale(0);
+    .white &{
+      background-color: #000;
+      border: 1px solid #000;
+    }
+  }
+  
+  input[type="radio"]:checked + label::before {
+    border-color: #fff;
+    .white &{
+      border-color: #000;
+    }
+  }
+  
+  input[type="radio"]:checked + label::after {
+    transform: translateY(-50%) scale(0.55);
+  }
+}
+
+.checkBox{
+  label{
+    padding-left: 0;
+  }
+  label:before {
+    content:'';
+    -webkit-appearance: none;
+    background-color: transparent;
+    border: 1px solid #fff;
+    padding: 6px;
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+    cursor: pointer;
+
+    .white &{
+      border: 1px solid #000;
+    }
+  }
+
+  input:checked + label:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    width: 3px;
+    height: 6px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+
+    .white &{
+      border: solid #000;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
+}
+
+.range{
+  input[type="range"] {
+    /* removing default appearance */
+    -webkit-appearance: none;
+    appearance: none; 
+    /* creating a custom design */
+    width: 100%;
+    cursor: pointer;
+    outline: none;
+    border-radius: 3px;
+    /*  overflow: hidden;  remove this line*/
+    
+    /* New additions */
+    height: 3px;
+    background: #fff;
+
+    .white &{
+      background: #000;
+    }
+
+  }
+  
+  /* Thumb: webkit */
+  input[type="range"]::-webkit-slider-thumb {
+    /* removing default appearance */
+    -webkit-appearance: none;
+    appearance: none; 
+    height: 10px;
+    width: 10px;
+    background-color: #fff;
+    border-radius: 50%;
+    border: none;
+    transition: .2s ease-in-out;
+
+    .white &{
+      background-color: #000;
+    }
+  }
+  
+  /* Thumb: Firefox */
+  input[type="range"]::-moz-range-thumb {
+    height: 10px;
+    width: 10px;
+    background-color: #fff;
+    border-radius: 50%;
+    border: none;
+    transition: .2s ease-in-out;
+
+    .white &{
+      background-color: #000;
+    }
+  }
+}
+

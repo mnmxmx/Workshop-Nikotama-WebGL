@@ -1,0 +1,116 @@
+.wrapper{
+  .left{
+    position: fixed;
+    top: 0;
+    z-index: 2;
+    width: 250px;
+    height: 100%;
+    border-right: 2px solid #aaa;
+    background: rgba(#000, 0.8);
+    transform: translate(-100%, 0);
+    transition: transform 0.5s;
+    &.open{
+      transform: translate(0, 0);
+    }
+
+    &_scrollArea{
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    &_scrollContent{
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow-y: scroll;
+      &::-webkit-scrollbar {
+        width: 2px;
+      }
+    }
+    h1{
+      line-height: 1.8;
+      font-size: 15px;
+      margin: 15px 5%;
+    }
+    nav{
+    width: 100%;
+      ul{
+        margin: 5%;
+        padding: 0;
+        list-style: none;
+        li{
+          width: 100%;
+          margin: 5% 0;
+          transition: opacity 0.5s, filter 0.5s;
+          span{
+            margin-bottom: 4px;
+            font-size: 12px;
+            display: block;
+          }
+
+          a{
+            display: block;
+            overflow: hidden;
+            border-radius: 4px;
+            border: 2px solid rgba(#fff, 0.5);
+            transition: border 0.5s;
+            img{
+              width: 100%;
+              vertical-align: bottom;
+            }
+          }
+
+          &:hover {
+            opacity: 1;
+            filter: contrast(100%);
+            a {
+              border: 2px solid #fff;
+            }
+          }
+
+        }
+      }
+
+      &:hover li{
+        opacity: 0.5;
+        filter: contrast(120%) brightness(103%);
+      }
+    }
+
+    .arrow{
+      position: absolute;
+      left: 100%;
+      width: 23px;
+      top: 20px;
+      cursor: pointer;
+      img{
+        width: 100%;
+      }
+
+      .close{
+        position: absolute;
+        top: 0;
+        left: 0; 
+        opacity: 0;
+      }
+
+      &.navClose{
+        .close{
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+
+  .content{
+    position: fixed;
+    top: 0;
+    width: 100%;
+    left: 0;
+    height: 100%;
+  }
+}
