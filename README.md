@@ -1,4 +1,4 @@
-# WebGL-Asset-Library-proto
+# Nikotama-WebGL
 
 ## Node.js
 v16.14.0
