@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 export type PlaneConfigType = {
   rotation: THREE.Euler;
   offsetPos: THREE.Vector2;

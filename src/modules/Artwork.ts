@@ -34,6 +34,7 @@ export default class Artwork{
 	material: any
 	planes: Plane[] = [];
 	cubeType: keyof typeof planeConfigs = 'type1'
+	isDebug: boolean = true
 
 	constructor(props: ArtworkProps){
 		this.props = props;
@@ -52,17 +53,30 @@ export default class Artwork{
 			const plane = new Plane(config);
 			this.planes.push(plane);
 			if(plane.mesh){
-				const mapPlane = new THREE.Mesh(
-					new THREE.PlaneGeometry(config.fboSize.x, config.fboSize.y),
-					new THREE.MeshBasicMaterial({ map: plane.fbo.texture })
-				)
-				console.log(config)
-				mapPlane.position.set(config.screenPosition.x, config.screenPosition.y, 0)
-				common.scene.add(mapPlane)
+
+
+				if(this.isDebug){
+					const geometry = new THREE.PlaneGeometry(1, 1);
+					geometry.translate(0, 0, 0.5)
+					geometry.translate(-config.offsetPos.x, -config.offsetPos.y, 0)
+					geometry.scale(config.scale.x, config.scale.y, 1)
+					geometry.translate(config.offsetPos.x, config.offsetPos.y, 0)
+					geometry.rotateX(config.rotation.x)
+					geometry.rotateY(config.rotation.y)
+					const material = new THREE.MeshBasicMaterial({ map: plane.fbo.texture, side: THREE.DoubleSide })
+					const debugPlane = new THREE.Mesh(geometry, material);
+					common.scene.add(debugPlane)
+					console.log(debugPlane)
+				} else {
+					const mapPlane = new THREE.Mesh(
+						new THREE.PlaneGeometry(config.fboSize.x, config.fboSize.y),
+						new THREE.MeshBasicMaterial({ map: plane.fbo.texture })
+					)
+					mapPlane.position.set(config.screenPosition.x, config.screenPosition.y, 0)
+					common.scene.add(mapPlane)
+				}
 			}
 		})
-		// controls.init()
-
 	}
 
 	update(){
@@ -71,7 +85,12 @@ export default class Artwork{
 			plane.render(common.renderer!);
 		})
 		common.renderer?.setRenderTarget(null);
-		common.renderer?.render(common.scene, common.camera);
+
+		if(this.isDebug) {
+			common.renderer?.render(common.scene, common.debugCamera);
+		} else {
+			common.renderer?.render(common.scene, common.camera);
+		}
 	}
 
 	loop(){
