@@ -13,7 +13,7 @@ class Common {
 	
 	constructor() {
 		this.camera.position.set(0, 0, 5);
-		this.debugCamera.position.set(0, 0, 5);
+		this.debugCamera.position.set(0, 0, 3);
 	}
 
 	init({$wrapper, width, height}: { $wrapper: HTMLElement | null, width: number, height: number}) {
@@ -28,7 +28,7 @@ class Common {
 		this.$canvas = this.renderer.domElement;
 		if($wrapper) $wrapper.appendChild(this.$canvas);
 		this.renderer.setPixelRatio(this.pixelRatio);
-		this.renderer.setClearColor(0xffffff, 1);
+		this.renderer.setClearColor(0xf1f1f1, 1);
 
 		this.setSize(width, height);
 	}

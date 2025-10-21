@@ -1,10 +1,16 @@
 import common from "./Common";
 import * as THREE from "three";
-import Plane from './Plane'
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { resolution1, planeConfigs1 } from "./planeConfigs1";
 import { resolution2, planeConfigs2 } from "./planeConfigs2";
 import { resolution3, planeConfigs3 } from "./planeConfigs3";
 import { PlaneConfigType } from "./planeConfigType";
+
+import controls from "./Controls";
+
+import cubeVert from './glsl/cube.vert'
+import cube1Frag from './glsl/cube1.frag'
+import utilsGlsl from './glsl/utils/utils.glsl'
 
 const planeConfigs: Record<string, { resolution: THREE.Vector2; planeConfigs: PlaneConfigType[] }> = {
 	type1: {
@@ -32,13 +38,24 @@ export default class Artwork{
 	clock: THREE.Clock = new THREE.Clock();
 	delta: number = 0;
 	material: any
-	planes: Plane[] = [];
-	cubeType: keyof typeof planeConfigs = 'type1'
+	cubeType: keyof typeof planeConfigs = 'type2'
 	isDebug: boolean = true
+	uniforms = {
+		uTime: {
+			value: 10
+		},
+		uColor1: { value: controls.params.uColor1 },
+		uColor2: { value: controls.params.uColor2 },
+		uColor3: { value: controls.params.uColor3 },
+		uColor4: { value: controls.params.uColor4 },
+		uNoiseFactors1: { value: controls.params.uNoiseFactors1 },
+		uNoiseFactors2: { value: controls.params.uNoiseFactors2 },
+		uColorFactor: { value: controls.params.uColorFactor },
+	}
 
 	constructor(props: ArtworkProps){
 		this.props = props;
-
+		controls.init();
 		this.init();
 	}
 
@@ -49,42 +66,54 @@ export default class Artwork{
 			height: planeConfigs[this.cubeType].resolution.y
 		});
 
-		planeConfigs[this.cubeType].planeConfigs.forEach((config) => {
-			const plane = new Plane(config);
-			this.planes.push(plane);
-			if(plane.mesh){
+		const geometriesToMerge: THREE.BufferGeometry[] = [];
 
-
-				if(this.isDebug){
-					const geometry = new THREE.PlaneGeometry(1, 1);
-					geometry.translate(0, 0, 0.5)
-					geometry.translate(-config.offsetPos.x, -config.offsetPos.y, 0)
-					geometry.scale(config.scale.x, config.scale.y, 1)
-					geometry.translate(config.offsetPos.x, config.offsetPos.y, 0)
-					geometry.rotateX(config.rotation.x)
-					geometry.rotateY(config.rotation.y)
-					const material = new THREE.MeshBasicMaterial({ map: plane.fbo.texture, side: THREE.DoubleSide })
-					const debugPlane = new THREE.Mesh(geometry, material);
-					common.scene.add(debugPlane)
-					console.log(debugPlane)
-				} else {
-					const mapPlane = new THREE.Mesh(
-						new THREE.PlaneGeometry(config.fboSize.x, config.fboSize.y),
-						new THREE.MeshBasicMaterial({ map: plane.fbo.texture })
-					)
-					mapPlane.position.set(config.screenPosition.x, config.screenPosition.y, 0)
-					common.scene.add(mapPlane)
-				}
+		const material = new THREE.ShaderMaterial({
+			vertexShader: cubeVert,
+			fragmentShader: utilsGlsl + cube1Frag,
+			uniforms: this.uniforms,
+			side: THREE.DoubleSide,
+			defines: {
+				IS_DEBUG: this.isDebug ? 1 : 0
 			}
 		})
+
+		planeConfigs[this.cubeType].planeConfigs.forEach((config) => {
+			// const material = new THREE.MeshBasicMaterial({ map: plane.fbo.texture, side: THREE.DoubleSide })
+
+			const debugGeometry = new THREE.PlaneGeometry(1, 1);
+			debugGeometry.translate(0, 0, 0.5)
+			debugGeometry.translate(-config.offsetPos.x, -config.offsetPos.y, 0)
+			debugGeometry.scale(config.scale.x, config.scale.y, 1)
+			debugGeometry.translate(config.offsetPos.x, config.offsetPos.y, 0)
+			debugGeometry.rotateX(config.rotation.x)
+			debugGeometry.rotateY(config.rotation.y)
+
+			const initialPosition = debugGeometry.attributes.position.clone();
+			debugGeometry.setAttribute('initialPosition', initialPosition)
+
+			if(this.isDebug){
+				const debugPlane = new THREE.Mesh(debugGeometry, material);
+				common.scene.add(debugPlane)
+			} else {
+				const geometry = new THREE.PlaneGeometry(config.fboSize.x, config.fboSize.y)
+				geometry.translate(config.screenPosition.x, config.screenPosition.y, 0);
+				geometry.setAttribute('initialPosition', initialPosition)
+				geometriesToMerge.push(geometry);
+			}
+		})
+
+		if(!this.isDebug){
+			const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometriesToMerge);
+			const mapPlane = new THREE.Mesh(mergedGeometry, material);
+			common.scene.add(mapPlane);
+		}
 	}
 
 	update(){
 		this.delta = this.clock.getDelta();
-		this.planes.forEach(plane => {
-			plane.render(common.renderer!);
-		})
 		common.renderer?.setRenderTarget(null);
+		this.uniforms.uTime.value += this.delta;
 
 		if(this.isDebug) {
 			common.renderer?.render(common.scene, common.debugCamera);
