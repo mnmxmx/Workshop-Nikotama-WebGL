@@ -9,7 +9,7 @@ class Controls {
       uColor3: new THREE.Color(0xffffff),
       uColor4: new THREE.Color(0x00c785),
       uNoiseFactors1: new THREE.Vector3(0.47, 0.200, 0.000),
-      uNoiseFactors2: new THREE.Vector3(0.00, 0.031, 0.000),
+      // uNoiseFactors2: new THREE.Vector3(0.00, 0.031, 0.000),
       uColorFactor: new THREE.Vector3(2.20, 0.00, 4.09),
       getColors: () => {
         console.log(`
@@ -20,7 +20,6 @@ class Controls {
       uNoiseFactors1: new THREE.Vector3(${this.params.uNoiseFactors1.x.toFixed(2)}, ${this.params.uNoiseFactors1.y.toFixed(3)}, ${this.params.uNoiseFactors1.z.toFixed(3)}),
       uNoiseFactors2: new THREE.Vector3(${this.params.uNoiseFactors2.x.toFixed(2)}, ${this.params.uNoiseFactors2.y.toFixed(3)}, ${this.params.uNoiseFactors2.z.toFixed(3)}),
       uColorFactor: new THREE.Vector3(${this.params.uColorFactor.x.toFixed(2)}, ${this.params.uColorFactor.y.toFixed(2)}, ${this.params.uColorFactor.z.toFixed(2)}),
-
         `)
       }
     }

@@ -6,7 +6,7 @@ uniform vec3 uColor3;
 uniform vec3 uColor4;
 
 uniform vec3 uNoiseFactors1;
-uniform vec3 uNoiseFactors2;
+// uniform vec3 uNoiseFactors2;
 
 uniform vec3 uColorFactor;
 
@@ -23,6 +23,7 @@ void main(){
 
 
   float intensity = uNoiseFactors1.y;
+  
 
   for(int i = 0; i < 12; i++){
     float noise = snoise3D(vec3(uvw * uNoiseFactors1.x + uTime * vec3(0.6, -0.4, 0.6) * 0.05));
@@ -52,7 +53,7 @@ void main(){
   float occY = 1.0 - pow(abs(vUv.y - 0.5) * 2.0, 2.0);
   float occ = 1.0 - occX * occY;
 
-  color = mix(color, pow(color, vec3(1.5)), occ * occ);
+  color = mix(color, pow(color, vec3(2.0)), occ * occ);
 
   color = pow(color, vec3(uColorFactor.x)); // gamma 2.2
   color += uColorFactor.y; // brightness adjustment

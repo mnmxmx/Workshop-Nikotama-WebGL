@@ -42,20 +42,38 @@ export default class Artwork{
 	isDebug: boolean = true
 	uniforms = {
 		uTime: {
-			value: 10
+			value: Math.random() * 100
 		},
 		uColor1: { value: controls.params.uColor1 },
 		uColor2: { value: controls.params.uColor2 },
 		uColor3: { value: controls.params.uColor3 },
 		uColor4: { value: controls.params.uColor4 },
 		uNoiseFactors1: { value: controls.params.uNoiseFactors1 },
-		uNoiseFactors2: { value: controls.params.uNoiseFactors2 },
 		uColorFactor: { value: controls.params.uColorFactor },
 	}
 
 	constructor(props: ArtworkProps){
 		this.props = props;
-		controls.init();
+		
+		// Get URL query parameters
+		const urlParams = new URLSearchParams(window.location.search);
+		
+		// Set cubeType from URL query, default to 'type2'
+		const cubeTypeParam = urlParams.get('cubeType');
+		if (cubeTypeParam && cubeTypeParam in planeConfigs) {
+			this.cubeType = cubeTypeParam as keyof typeof planeConfigs;
+		}
+		
+		// Set debug mode from URL query, default to true
+		const debugParam = urlParams.get('debug');
+		if (debugParam !== null) {
+			this.isDebug = debugParam === 'true' || debugParam === '1';
+		}
+
+		if (this.isDebug){
+			controls.init();
+		}
+		
 		this.init();
 	}
 
