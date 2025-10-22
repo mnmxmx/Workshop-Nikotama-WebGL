@@ -21,9 +21,7 @@ void main(){
   vec3 uvw = vPosition * 0.5 + 0.5;
   // uvw = floor(uvw * 8.0) / 8.0;
 
-
   float intensity = uNoiseFactors1.y;
-  
 
   for(int i = 0; i < 12; i++){
     float noise = snoise3D(vec3(uvw * uNoiseFactors1.x + uTime * vec3(0.6, -0.4, 0.6) * 0.05));
@@ -45,15 +43,22 @@ void main(){
   float sy = cos(uvw.y * s) * 0.5 + 0.5;
   float sz = cos(uvw.z * s) * 0.5 + 0.5;
 
-  vec3 color1 = mix(uColor1, uColor2, sx);
-  vec3 color2 = mix(uColor3, uColor4, sy);
+  vec3 color1 = mix(uColor2, uColor1, sx * sx);
+  vec3 color2 = mix(uColor4, uColor3, sy * sy);
   vec3 color = mix(color1, color2, sz);
 
   float occX = 1.0 - pow(abs(vUv.x - 0.5) * 2.0, 2.0);
   float occY = 1.0 - pow(abs(vUv.y - 0.5) * 2.0, 2.0);
   float occ = 1.0 - occX * occY;
+  occ = pow(occ, 0.5);
 
-  color = mix(color, pow(color, vec3(2.0)), occ * occ);
+  // vec3 hsv = rgb2hsv(color);
+  // hsv.g += occ * 0.2;
+  // hsv.b -= occ * 0.05;
+  // vec3 occColor = hsv2rgb(hsv);
+
+
+  color = mix(color, pow(color, vec3(2.0)), occ);
 
   color = pow(color, vec3(uColorFactor.x)); // gamma 2.2
   color += uColorFactor.y; // brightness adjustment

@@ -10,7 +10,7 @@ class Controls {
       uColor4: new THREE.Color(0x00c785),
       uNoiseFactors1: new THREE.Vector3(0.47, 0.200, 0.000),
       // uNoiseFactors2: new THREE.Vector3(0.00, 0.031, 0.000),
-      uColorFactor: new THREE.Vector3(2.20, 0.00, 4.09),
+      uColorFactor: new THREE.Vector3(1.345, 0.00, 4.09),
       getColors: () => {
         console.log(`
       uColor1: new THREE.Color(0x${this.params.uColor1.getHexString()}),
