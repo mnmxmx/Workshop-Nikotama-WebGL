@@ -14,9 +14,7 @@ export default {
     sourcemap: true,
     rollupOptions: {
       input: {
-        allAssets: resolve(root, 'all-assets', 'index.html'),
         index: resolve(root, 'index.html'),
-
       },
     },
   },
