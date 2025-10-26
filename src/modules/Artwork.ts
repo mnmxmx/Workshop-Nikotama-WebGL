@@ -37,6 +37,7 @@ export default class Artwork{
 	private isDisposed: boolean | undefined;
 	clock: THREE.Clock = new THREE.Clock();
 	delta: number = 0;
+	time: number = Math.random() * 100
 	material: any
 	cubeType: keyof typeof planeConfigs = 'type2'
 	isDebug: boolean = true
@@ -49,6 +50,7 @@ export default class Artwork{
 		uColor3: { value: controls.params.uColor3 },
 		uColor4: { value: controls.params.uColor4 },
 		uNoiseFactors1: { value: controls.params.uNoiseFactors1 },
+		uNoisePosScale: { value: controls.params.uNoisePosScale },
 		uColorFactor: { value: controls.params.uColorFactor },
 	}
 
@@ -131,7 +133,14 @@ export default class Artwork{
 	update(){
 		this.delta = this.clock.getDelta();
 		common.renderer?.setRenderTarget(null);
-		this.uniforms.uTime.value += this.delta;
+			this.time += this.delta;
+
+
+		if (controls.params.isTimePaused) {
+			this.uniforms.uTime.value = controls.params.debugTime;
+		} else {
+			this.uniforms.uTime.value = this.time
+		}
 
 		if(this.isDebug) {
 			common.renderer?.render(common.scene, common.debugCamera);
