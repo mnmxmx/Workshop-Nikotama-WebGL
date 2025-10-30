@@ -5,6 +5,7 @@ import { resolution1, planeConfigs1 } from "./planeConfigs1";
 import { resolution2, planeConfigs2 } from "./planeConfigs2";
 import { resolution3, planeConfigs3 } from "./planeConfigs3";
 import { PlaneConfigType } from "./planeConfigType";
+import datas from "./datas";
 
 import controls from "./Controls";
 
@@ -72,8 +73,19 @@ export default class Artwork{
 			this.isDebug = debugParam === 'true' || debugParam === '1';
 		}
 
+		const colorIndex = urlParams.get('colorIndex');
+		if (colorIndex !== null) {
+			const index = parseInt(colorIndex);	
+			controls.setParams(index)
+		}
+
 		if (this.isDebug){
 			controls.init();
+			controls.setParams(0)
+		} else {
+			if((colorIndex === null)){
+				controls.setParams(Math.floor(Math.random() * datas.length))
+			}
 		}
 		
 		this.init();

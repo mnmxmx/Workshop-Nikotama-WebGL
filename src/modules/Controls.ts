@@ -1,6 +1,8 @@
 import {GUI} from 'lil-gui'
 import * as THREE from 'three'
 
+import datas from './datas'
+
 class Controls {
     gui?: GUI
     params: any =  {
@@ -13,6 +15,7 @@ class Controls {
       uColorFactor: new THREE.Vector4(0.73, -0.07, 5.076, 7.44),
       isTimePaused: false,
       debugTime: 0,
+      activeIndex: 0,
       getColors: () => {
         console.log(`
       uColor1: new THREE.Color(0x${this.params.uColor1.getHexString()}),
@@ -41,29 +44,29 @@ class Controls {
       this.gui = new GUI()
       // this.gui.add(this.params.uColorParams, 'x', 0, 2).name('Time')
 
-      this.gui.addColor(this.params, 'uColor1')
-      this.gui.addColor(this.params, 'uColor2')
-      this.gui.addColor(this.params, 'uColor3')
-      this.gui.addColor(this.params, 'uColor4')
+      this.gui.addColor(this.params, 'uColor1').listen()
+      this.gui.addColor(this.params, 'uColor2').listen()
+      this.gui.addColor(this.params, 'uColor3').listen()
+      this.gui.addColor(this.params, 'uColor4').listen()
 
       const folderNoise1 = this.gui.addFolder('Noise 1')
       folderNoise1.open()
-      folderNoise1.add(this.params.uNoiseFactors1, 'x', 0, 5).name('Noise1 Scale')
-      folderNoise1.add(this.params.uNoiseFactors1, 'y', 0, 0.2).name('Noise1 Intensity')
+      folderNoise1.add(this.params.uNoiseFactors1, 'x', 0, 5).name('Noise1 Scale').listen()
+      folderNoise1.add(this.params.uNoiseFactors1, 'y', 0, 0.2).name('Noise1 Intensity').listen()
 
       const folderNoiseScale = this.gui.addFolder('Noise Position Scale')
       folderNoiseScale.open()
-      folderNoiseScale.add(this.params.uNoisePosScale, 'x', 0.0, 1.0).name('Noise Pos Scale X')
-      folderNoiseScale.add(this.params.uNoisePosScale, 'y', 0.0, 1.0).name('Noise Pos Scale Y')
-      folderNoiseScale.add(this.params.uNoisePosScale, 'z', 0.0, 1.0).name('Noise Pos Scale Z')
+      folderNoiseScale.add(this.params.uNoisePosScale, 'x', 0.0, 1.0).name('Noise Pos Scale X').listen()
+      folderNoiseScale.add(this.params.uNoisePosScale, 'y', 0.0, 1.0).name('Noise Pos Scale Y').listen()
+      folderNoiseScale.add(this.params.uNoisePosScale, 'z', 0.0, 1.0).name('Noise Pos Scale Z').listen()
 
 
       const folderColor = this.gui.addFolder('Color')
       folderColor.open()
-      folderColor.add(this.params.uColorFactor, 'x', 0, 5).name('Color Gamma')
-      folderColor.add(this.params.uColorFactor, 'y', -0.5, 0.5).name('Color Brightness')
-      folderColor.add(this.params.uColorFactor, 'z', 1, 10).name('Color Scale')
-      folderColor.add(this.params.uColorFactor, 'w', 1.0, 10.0).name('Color Time Speed')
+      folderColor.add(this.params.uColorFactor, 'x', 0, 5).name('Color Gamma').listen()
+      folderColor.add(this.params.uColorFactor, 'y', -0.5, 0.5).name('Color Brightness').listen()
+      folderColor.add(this.params.uColorFactor, 'z', 1, 10).name('Color Scale').listen()
+      folderColor.add(this.params.uColorFactor, 'w', 1.0, 10.0).name('Color Time Speed').listen()
 
       const timeFolder = this.gui.addFolder('Time')
       timeFolder.open()
@@ -80,8 +83,22 @@ class Controls {
         }
       })
 
+      this.gui.add(this.params, 'activeIndex', 0, datas.length -1, 1).name('Color Preset').onChange((value: number) => {
+        this.setParams(value)
+      })
+
       this.gui.add(this.params, 'getColors').name('Get Colors')
     }
+    
+  setParams(value: number) {
+    this.params.uColor1.copy(datas[value].uColor1)
+    this.params.uColor2.copy(datas[value].uColor2)
+    this.params.uColor3.copy(datas[value].uColor3)
+    this.params.uColor4.copy(datas[value].uColor4)
+    this.params.uNoiseFactors1.copy(datas[value].uNoiseFactors1)
+    this.params.uNoisePosScale.copy(datas[value].uNoisePosScale)
+    this.params.uColorFactor.copy(datas[value].uColorFactor)
+  }
 
 }
 

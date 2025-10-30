@@ -50,17 +50,29 @@ vec3 calcColor(vec3 uvw, vec3 c1, vec3 c2, vec3 c3, vec3 c4) {
   return color;
 }
 
+mat2 rotate2D(float angle) {
+  float s = sin(angle);
+  float c = cos(angle); 
+
+  return mat2(
+    c, -s,
+    s,  c
+  );
+} 
+
 void main(){
-  vec3 uvw = vPosition * 0.5 + 0.5;
-  // uvw = floor(uvw * 8.0) / 8.0;
+  vec3 uvw = vPosition;
+  uvw.xy = rotate2D(PI / 4.0) * uvw.xy;
+  uvw.yz = rotate2D(PI / 4.0) * uvw.yz;
+  uvw.zx = rotate2D(uTime * 0.2) * uvw.zx;
 
   vec3 newUvw_1 = uvw;
 
-  float time = uTime * 0.05;
+  float time = uTime * 0.02;
 
   newUvw_1 += time;
 
-  newUvw_1 = calcNewUvw(newUvw_1, vec3(0.6, -0.4, 0.6) * 0.1, vec3(-0.3, 0.7, -0.5) * 0.1);
+  newUvw_1 = calcNewUvw(newUvw_1, vec3(0.6, -0.4, 0.6) * 0.05, vec3(-0.3, 0.7, -0.5) * 0.05);
 
   newUvw_1 -= time;
 
@@ -72,15 +84,17 @@ void main(){
   color = hsv2rgb(hsv);
 
 
-  float occX = 1.0 - pow(abs(vUv.x - 0.5) * 2.0, 2.0);
-  float occY = 1.0 - pow(abs(vUv.y - 0.5) * 2.0, 2.0);
-  float occ = 1.0 - occX * occY;
+  vec3 uv3 = vPosition;
+
+  float occX = 1.0 - pow(abs(uv3.x) * 2.0, 2.0);
+  float occY = 1.0 - pow(abs(uv3.y) * 2.0, 2.0);
+  float occZ = 1.0 - pow(abs(uv3.z) * 2.0, 2.0);
+  float occ = occX * occY + occY * occZ + occZ * occX;
 
   color = mix(color, pow(color, vec3(2.0)), occ);
 
   color = pow(color, vec3(uColorFactor.x)); // gamma 2.2
   color += uColorFactor.y; // brightness adjustment
-
 
   gl_FragColor = vec4(color, 1.0);
 }
