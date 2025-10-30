@@ -110,7 +110,7 @@ export default [
       uColor2: new THREE.Color(0xade7ff),
       uColor3: new THREE.Color(0x7accff),
       uColor4: new THREE.Color(0x3792e6),
-      uNoiseFactors1: new THREE.Vector3(1.50, 0.051, 0.000),
+      uNoiseFactors1: new THREE.Vector3(1.78, 0.087, 0.000),
       uNoisePosScale: new THREE.Vector3(0.43, 0.83, 0.44),
       uColorFactor: new THREE.Vector4(1.00, -0.07, 2.70, 6.88),
   }

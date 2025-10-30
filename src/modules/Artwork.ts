@@ -46,6 +46,7 @@ export default class Artwork{
 		uTime: {
 			value: Math.random() * 100
 		},
+		uRotateDist: { value: controls.params.uRotateDist },
 		uColor1: { value: controls.params.uColor1 },
 		uColor2: { value: controls.params.uColor2 },
 		uColor3: { value: controls.params.uColor3 },
@@ -66,6 +67,18 @@ export default class Artwork{
 		if (cubeTypeParam && cubeTypeParam in planeConfigs) {
 			this.cubeType = cubeTypeParam as keyof typeof planeConfigs;
 		}
+
+		switch(cubeTypeParam) {
+			case 'type1':
+				controls.params.uRotateDist.set(-1, -1);
+				break;
+			case 'type2':
+				controls.params.uRotateDist.set(-1, 1);
+				break;
+			case 'type3':
+				controls.params.uRotateDist.set(1, -1);
+				break;
+		}
 		
 		// Set debug mode from URL query, default to true
 		const debugParam = urlParams.get('debug');
@@ -79,8 +92,9 @@ export default class Artwork{
 			controls.setParams(index)
 		}
 
+		controls.init();
+
 		if (this.isDebug){
-			controls.init();
 			controls.setParams(0)
 		} else {
 			if((colorIndex === null)){

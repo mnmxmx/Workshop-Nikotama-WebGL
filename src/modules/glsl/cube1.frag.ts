@@ -1,4 +1,5 @@
 export default `
+uniform vec2 uRotateDist;
 uniform float uTime;
 uniform vec3 uColor1;
 uniform vec3 uColor2;
@@ -21,7 +22,7 @@ vec3 calcNewUvw(vec3 uvw, vec3 offset1, vec3 offset2) {
   float intensity = uNoiseFactors1.y / uNoiseFactors1.x;
   vec3 noiseScale = uNoisePosScale;
 
-  for(int i = 0; i < 12; i++){
+  for(int i = 0; i < 6; i++){
     float noise = snoise3D(vec3(uvw * uNoiseFactors1.x * noiseScale + uTime * offset1));
     float noise2 = snoise3D(vec3(uvw * uNoiseFactors1.x * noiseScale + uTime * offset2));
     float angle = noise * PI;
@@ -62,8 +63,8 @@ mat2 rotate2D(float angle) {
 
 void main(){
   vec3 uvw = vPosition;
-  uvw.xy = rotate2D(-PI / 4.0) * uvw.xy;
-  uvw.yz = rotate2D(-PI / 4.0) * uvw.yz;
+  uvw.xy = rotate2D(PI / 4.0 * uRotateDist.x) * uvw.xy;
+  uvw.yz = rotate2D(-PI / 4.0 * uRotateDist.y) * uvw.yz;
   uvw.zx = rotate2D(uTime * 0.2) * uvw.zx;
 
   vec3 newUvw_1 = uvw;

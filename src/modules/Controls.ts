@@ -13,6 +13,7 @@ class Controls {
       uNoiseFactors1: new THREE.Vector3(3.19, 0.079, 0.000),
       uNoisePosScale: new THREE.Vector3(0.37, 1.00, 0.35),
       uColorFactor: new THREE.Vector4(0.73, -0.07, 5.076, 7.44),
+      uRotateDist: new THREE.Vector2(-1, -1),
       isTimePaused: false,
       debugTime: 0,
       activeIndex: 0,
@@ -42,12 +43,13 @@ class Controls {
 
     init (){
       this.gui = new GUI()
-      // this.gui.add(this.params.uColorParams, 'x', 0, 2).name('Time')
-
       this.gui.addColor(this.params, 'uColor1').listen()
       this.gui.addColor(this.params, 'uColor2').listen()
       this.gui.addColor(this.params, 'uColor3').listen()
       this.gui.addColor(this.params, 'uColor4').listen()
+
+      this.gui.add(this.params.uRotateDist, 'x', -1, 1, 1).name('Rotate Dist X').listen()
+      this.gui.add(this.params.uRotateDist, 'y', -1, 1, 1).name('Rotate Dist Y').listen()
 
       const folderNoise1 = this.gui.addFolder('Noise 1')
       folderNoise1.open()
