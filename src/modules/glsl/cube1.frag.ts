@@ -19,7 +19,7 @@ float noiseAmount = 0.0;
 const float PI = 3.14159265359;
 
 vec3 calcNewUvw(vec3 uvw, vec3 offset1, vec3 offset2) {
-  float intensity = uNoiseFactors1.y / uNoiseFactors1.x;
+  float intensity = uNoiseFactors1.y / uNoiseFactors1.x * 1.5;
   vec3 noiseScale = uNoisePosScale;
 
   for(int i = 0; i < 6; i++){
@@ -69,7 +69,8 @@ void main(){
 
   vec3 newUvw_1 = uvw;
 
-  float time = uTime * 0.02;
+  float time = sin(uTime * 0.02 * PI) * 2.0;
+
 
   newUvw_1 += time;
 

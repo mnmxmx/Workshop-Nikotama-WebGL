@@ -10,8 +10,6 @@ const App: React.FC = () => {
     const artwork = new Artwork({
       $wrapper: document.querySelector('.wrapper') as HTMLElement
     });
-
-    artwork.loop();
   }, [])
   return (
     <Router>

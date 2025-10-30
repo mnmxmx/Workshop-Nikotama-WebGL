@@ -5,6 +5,7 @@ import datas from './datas'
 
 class Controls {
     gui?: GUI
+    _targetIndex: number = 0
     params: any =  {
       uColor1: new THREE.Color(0xffffff),
       uColor2: new THREE.Color(0xfff8ad),
@@ -16,6 +17,7 @@ class Controls {
       uRotateDist: new THREE.Vector2(-1, -1),
       isTimePaused: false,
       debugTime: 0,
+      stopTransition: false,
       activeIndex: 0,
       getColors: () => {
         console.log(`
@@ -85,6 +87,8 @@ class Controls {
         }
       })
 
+      timeFolder.add(this.params, 'stopTransition').name('Stop Transition')
+
       this.gui.add(this.params, 'activeIndex', 0, datas.length -1, 1).name('Color Preset').onChange((value: number) => {
         this.setParams(value)
       })
@@ -100,6 +104,21 @@ class Controls {
     this.params.uNoiseFactors1.copy(datas[value].uNoiseFactors1)
     this.params.uNoisePosScale.copy(datas[value].uNoisePosScale)
     this.params.uColorFactor.copy(datas[value].uColorFactor)
+  }
+
+  lerpParams(colorProgress: number, progress: number){
+    const currentIndex = this.params.activeIndex
+    const targetIndex = this._targetIndex
+    this.params.uColor1.lerpColors(datas[currentIndex].uColor1, datas[targetIndex].uColor1, colorProgress)
+    this.params.uColor2.lerpColors(datas[currentIndex].uColor2, datas[targetIndex].uColor2, colorProgress)
+    this.params.uColor3.lerpColors(datas[currentIndex].uColor3, datas[targetIndex].uColor3, colorProgress)
+    this.params.uColor4.lerpColors(datas[currentIndex].uColor4, datas[targetIndex].uColor4, colorProgress)
+    this.params.uNoiseFactors1.lerpVectors(datas[currentIndex].uNoiseFactors1, datas[targetIndex].uNoiseFactors1, progress)
+    this.params.uNoisePosScale.lerpVectors(datas[currentIndex].uNoisePosScale, datas[targetIndex].uNoisePosScale, progress)
+    // this.params.uColorFactor.lerpVectors(datas[currentIndex].uColorFactor, datas[targetIndex].uColorFactor, progress)
+
+    this.params.uColorFactor.x = THREE.MathUtils.lerp(this.params.uColorFactor.x, datas[targetIndex].uColorFactor.x, progress);
+    this.params.uColorFactor.y = THREE.MathUtils.lerp(this.params.uColorFactor.y, datas[targetIndex].uColorFactor.y, progress);
   }
 
 }

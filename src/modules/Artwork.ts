@@ -33,18 +33,33 @@ interface ArtworkProps {
     $wrapper: HTMLElement;
 }
 
+
 export default class Artwork{
 	private props: ArtworkProps;
 	private isDisposed: boolean | undefined;
 	clock: THREE.Clock = new THREE.Clock();
 	delta: number = 0;
-	time: number = Math.random() * 100
+	time: number = 100 * Math.random()
 	material: any
 	cubeType: keyof typeof planeConfigs = 'type2'
 	isDebug: boolean = true
+	progress: {
+		current: number;
+		target: number;
+	} = {
+		current: 0,
+		target: 0
+	}
+	progressColor: {
+		current: number;
+		target: number;
+	} = {
+		current: 0,
+		target: 0
+	}
 	uniforms = {
 		uTime: {
-			value: Math.random() * 100
+			value: 43200
 		},
 		uRotateDist: { value: controls.params.uRotateDist },
 		uColor1: { value: controls.params.uColor1 },
@@ -94,15 +109,54 @@ export default class Artwork{
 
 		controls.init();
 
-		if (this.isDebug){
-			controls.setParams(0)
-		} else {
-			if((colorIndex === null)){
-				controls.setParams(Math.floor(Math.random() * datas.length))
+
+		if(colorIndex === null){
+			// set different initial color based on cube type
+			const activeIndiceArray: number[] = [];
+
+			for (let i = 0; i < 3; i++) {
+				let _index = Math.floor(Math.random() * datas.length);
+				while(activeIndiceArray.includes(_index)) {
+						_index = Math.floor(Math.random() * datas.length);
+				}
+				activeIndiceArray.push(_index);
 			}
+
+			switch(cubeTypeParam) {
+				case 'type1':
+					controls._targetIndex = activeIndiceArray[0];
+					controls.params.activeIndex = activeIndiceArray[0];
+					controls.setParams(controls.params.activeIndex)
+					break;
+				case 'type2':
+					controls._targetIndex = activeIndiceArray[1];
+					controls.params.activeIndex = activeIndiceArray[1];
+					controls.setParams(controls.params.activeIndex)
+					break;
+				case 'type3':
+					controls._targetIndex = activeIndiceArray[2];
+					controls.params.activeIndex = activeIndiceArray[2];
+					controls.setParams(controls.params.activeIndex)
+					break;
+			}
+			
 		}
 		
 		this.init();
+		this.loop()
+
+		const interval = urlParams.get('interval') || '30';
+
+		setInterval(() => {
+			controls.params.activeIndex = controls._targetIndex;
+			controls._targetIndex = (controls._targetIndex + 1) % datas.length;
+			this.progress.current = 0;
+			this.progress.target = 1;
+
+			this.progressColor.current = 0;
+			this.progressColor.target = 1;
+			console.log("change")
+		}, 1000 * parseInt(interval))
 	}
 
 	init(){
@@ -159,13 +213,19 @@ export default class Artwork{
 	update(){
 		this.delta = this.clock.getDelta();
 		common.renderer?.setRenderTarget(null);
-			this.time += this.delta;
-
+		this.time += this.delta;
 
 		if (controls.params.isTimePaused) {
 			this.uniforms.uTime.value = controls.params.debugTime;
 		} else {
 			this.uniforms.uTime.value = this.time
+		}
+
+		this.progress.current += (this.progress.target - this.progress.current) * Math.min(1, this.delta * 1);
+		this.progressColor.current += (this.progressColor.target - this.progressColor.current) * Math.min(1, this.delta);
+
+		if (!controls.params.stopTransition) {
+			controls.lerpParams(this.progressColor.current, this.progress.current);
 		}
 
 		if(this.isDebug) {
