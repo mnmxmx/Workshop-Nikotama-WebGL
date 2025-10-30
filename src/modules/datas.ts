@@ -77,6 +77,15 @@ export default [
     uNoisePosScale: new THREE.Vector3(0.54, 0.90, 0.27),
     uColorFactor: new THREE.Vector4(1.00, 0.00, 3.91, 6.95),
   },
+  {
+    uColor1: new THREE.Color(0xfdfeec),
+    uColor2: new THREE.Color(0xfec35d),
+    uColor3: new THREE.Color(0xeea0d9),
+    uColor4: new THREE.Color(0xfee6b4),
+    uNoiseFactors1: new THREE.Vector3(1.01, 0.087, 0.000),
+    uNoisePosScale: new THREE.Vector3(0.38, 0.66, 0.35),
+    uColorFactor: new THREE.Vector4(1.00, 0.00, 2.49, 6.95),
+  },
   // 夜
   {
     uColor1: new THREE.Color(0xffffff),
@@ -87,4 +96,22 @@ export default [
     uNoisePosScale: new THREE.Vector3(0.52, 0.52, 0.49),
     uColorFactor: new THREE.Vector4(1.03, -0.03, 3.86, 10.00),
   },
+  {
+      uColor1: new THREE.Color(0xffffff),
+      uColor2: new THREE.Color(0xffadf4),
+      uColor3: new THREE.Color(0x41a7e6),
+      uColor4: new THREE.Color(0x5a80f2),
+      uNoiseFactors1: new THREE.Vector3(1.25, 0.049, 0.000),
+      uNoisePosScale: new THREE.Vector3(0.86, 0.17, 0.92),
+      uColorFactor: new THREE.Vector4(1.03, -0.03, 2.92, 10.00),
+  },
+  {
+      uColor1: new THREE.Color(0xe0ffef),
+      uColor2: new THREE.Color(0xade7ff),
+      uColor3: new THREE.Color(0x7accff),
+      uColor4: new THREE.Color(0x3792e6),
+      uNoiseFactors1: new THREE.Vector3(1.50, 0.051, 0.000),
+      uNoisePosScale: new THREE.Vector3(0.43, 0.83, 0.44),
+      uColorFactor: new THREE.Vector4(1.00, -0.07, 2.70, 6.88),
+  }
 ]

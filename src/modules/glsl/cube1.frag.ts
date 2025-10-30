@@ -62,8 +62,8 @@ mat2 rotate2D(float angle) {
 
 void main(){
   vec3 uvw = vPosition;
-  uvw.xy = rotate2D(PI / 4.0) * uvw.xy;
-  uvw.yz = rotate2D(PI / 4.0) * uvw.yz;
+  uvw.xy = rotate2D(-PI / 4.0) * uvw.xy;
+  uvw.yz = rotate2D(-PI / 4.0) * uvw.yz;
   uvw.zx = rotate2D(uTime * 0.2) * uvw.zx;
 
   vec3 newUvw_1 = uvw;
