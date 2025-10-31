@@ -119,6 +119,7 @@ class Controls {
 
     this.params.uColorFactor.x = THREE.MathUtils.lerp(this.params.uColorFactor.x, datas[targetIndex].uColorFactor.x, progress);
     this.params.uColorFactor.y = THREE.MathUtils.lerp(this.params.uColorFactor.y, datas[targetIndex].uColorFactor.y, progress);
+    // this.params.uColorFactor.z = THREE.MathUtils.lerp(this.params.uColorFactor.z, datas[targetIndex].uColorFactor.z, progress);
   }
 
 }

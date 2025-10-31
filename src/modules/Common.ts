@@ -16,11 +16,12 @@ class Common {
 		this.debugCamera.position.set(0, 0, 3);
 	}
 
-	init({$wrapper, width, height}: { $wrapper: HTMLElement | null, width: number, height: number}) {
+	init({$wrapper, $canvas, width, height}: { $wrapper: HTMLElement | null, $canvas: HTMLCanvasElement | null, width: number, height: number}) {
 
 		this.renderer = new THREE.WebGLRenderer({
 				antialias: true,
 				alpha: true,
+				canvas: $canvas || undefined
 		});
 
 		this.controls = new OrbitControls( this.debugCamera, this.renderer.domElement );

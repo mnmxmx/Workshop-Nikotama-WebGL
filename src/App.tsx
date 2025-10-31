@@ -8,12 +8,18 @@ const App: React.FC = () => {
 
   useEffect (() => {
     const artwork = new Artwork({
-      $wrapper: document.querySelector('.wrapper') as HTMLElement
+      $wrapper: document.querySelector('.wrapper') as HTMLElement,
+      $canvas: document.querySelector('.canvas') as HTMLCanvasElement
     });
+
+    return () => {
+      artwork.dispose();
+    }
   }, [])
   return (
     <Router>
       <div className="wrapper">
+        <canvas className="canvas" />
       </div>
     </Router>
   );

@@ -5,6 +5,7 @@ uniform vec3 uColor1;
 uniform vec3 uColor2;
 uniform vec3 uColor3;
 uniform vec3 uColor4;
+uniform vec3 uCubeScale;
 
 uniform vec3 uNoiseFactors1;
 uniform vec3 uNoisePosScale;
@@ -23,8 +24,8 @@ vec3 calcNewUvw(vec3 uvw, vec3 offset1, vec3 offset2) {
   vec3 noiseScale = uNoisePosScale;
 
   for(int i = 0; i < 6; i++){
-    float noise = snoise3D(vec3(uvw * uNoiseFactors1.x * noiseScale + uTime * offset1));
-    float noise2 = snoise3D(vec3(uvw * uNoiseFactors1.x * noiseScale + uTime * offset2));
+    float noise = snoise3D(vec3(uvw * uNoiseFactors1.x * noiseScale + uTime * offset1 / uCubeScale.x));
+    float noise2 = snoise3D(vec3(uvw * uNoiseFactors1.x * noiseScale + uTime * offset2 / uCubeScale.x));
     float angle = noise * PI;
     float angle2 = noise2 * PI;
 
@@ -38,11 +39,11 @@ vec3 calcNewUvw(vec3 uvw, vec3 offset1, vec3 offset2) {
 }
 
 vec3 calcColor(vec3 uvw, vec3 c1, vec3 c2, vec3 c3, vec3 c4) {
-  uvw += uTime * 0.02 * uColorFactor.w;
+  uvw += uTime * 0.02 * uColorFactor.w / uCubeScale.x;
 
-  float sx = cos((uvw.x + uvw.y) * uColorFactor.z) * 0.5 + 0.5;
-  float sy = cos((uvw.y + uvw.z) * uColorFactor.z) * 0.5 + 0.5;
-  float sz = cos((uvw.z + uvw.x) * uColorFactor.z) * 0.5 + 0.5;
+  float sx = cos((uvw.x + uvw.y) * uColorFactor.z / uCubeScale.x) * 0.5 + 0.5;
+  float sy = cos((uvw.y + uvw.z) * uColorFactor.z / uCubeScale.y) * 0.5 + 0.5;
+  float sz = cos((uvw.z + uvw.x) * uColorFactor.z / uCubeScale.z) * 0.5 + 0.5;
 
   vec3 color1 = mix(c1, c2, sx);
   vec3 color2 = mix(color1, c3, sy);
@@ -66,10 +67,11 @@ void main(){
   uvw.xy = rotate2D(PI / 4.0 * uRotateDist.x) * uvw.xy;
   uvw.yz = rotate2D(-PI / 4.0 * uRotateDist.y) * uvw.yz;
   uvw.zx = rotate2D(uTime * 0.2) * uvw.zx;
+  uvw *= uCubeScale.x;
 
   vec3 newUvw_1 = uvw;
 
-  float time = sin(uTime * 0.02 * PI) * 2.0;
+  float time = sin(uTime * 0.015 * PI) * 2.0 / uCubeScale.x;
 
 
   newUvw_1 += time;

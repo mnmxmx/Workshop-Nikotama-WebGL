@@ -31,6 +31,7 @@ const planeConfigs: Record<string, { resolution: THREE.Vector2; planeConfigs: Pl
 
 interface ArtworkProps {
     $wrapper: HTMLElement;
+		$canvas: HTMLCanvasElement;
 }
 
 
@@ -43,6 +44,7 @@ export default class Artwork{
 	material: any
 	cubeType: keyof typeof planeConfigs = 'type2'
 	isDebug: boolean = true
+	intervalTimer: any
 	progress: {
 		current: number;
 		target: number;
@@ -69,6 +71,7 @@ export default class Artwork{
 		uNoiseFactors1: { value: controls.params.uNoiseFactors1 },
 		uNoisePosScale: { value: controls.params.uNoisePosScale },
 		uColorFactor: { value: controls.params.uColorFactor },
+		uCubeScale: { value: new THREE.Vector3(1, 1, 1)}
 	}
 
 	constructor(props: ArtworkProps){
@@ -86,12 +89,15 @@ export default class Artwork{
 		switch(cubeTypeParam) {
 			case 'type1':
 				controls.params.uRotateDist.set(-1, -1);
+				this.uniforms.uCubeScale.value.x = 1.2;
 				break;
 			case 'type2':
 				controls.params.uRotateDist.set(-1, 1);
+				this.uniforms.uCubeScale.value.x = 1;
 				break;
 			case 'type3':
 				controls.params.uRotateDist.set(1, -1);
+				this.uniforms.uCubeScale.value.x = 0.9;
 				break;
 		}
 		
@@ -114,13 +120,13 @@ export default class Artwork{
 			// set different initial color based on cube type
 			const activeIndiceArray: number[] = [];
 
-			for (let i = 0; i < 3; i++) {
-				let _index = Math.floor(Math.random() * datas.length);
-				while(activeIndiceArray.includes(_index)) {
-						_index = Math.floor(Math.random() * datas.length);
-				}
-				activeIndiceArray.push(_index);
-			}
+			const time = Math.floor(Date.now() / 10000);
+			// choose cubeIndex by using time as seed
+			const cubeIndex1 = (time) % datas.length;
+			const cubeIndex2 = (time + 4) % datas.length;
+			const cubeIndex3 = (time + 8) % datas.length;
+
+			activeIndiceArray.push(cubeIndex1, cubeIndex2, cubeIndex3);
 
 			switch(cubeTypeParam) {
 				case 'type1':
@@ -145,9 +151,9 @@ export default class Artwork{
 		this.init();
 		this.loop()
 
-		const interval = urlParams.get('interval') || '30';
+		const interval = urlParams.get('interval') || '300';
 
-		setInterval(() => {
+		this.intervalTimer = setInterval(() => {
 			controls.params.activeIndex = controls._targetIndex;
 			controls._targetIndex = (controls._targetIndex + 1) % datas.length;
 			this.progress.current = 0;
@@ -155,13 +161,13 @@ export default class Artwork{
 
 			this.progressColor.current = 0;
 			this.progressColor.target = 1;
-			console.log("change")
 		}, 1000 * parseInt(interval))
 	}
 
 	init(){
 		common.init({
 			$wrapper: this.props.$wrapper,
+			$canvas: this.props.$canvas,
 			width: planeConfigs[this.cubeType].resolution.x,
 			height: planeConfigs[this.cubeType].resolution.y
 		});
@@ -207,6 +213,15 @@ export default class Artwork{
 			const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometriesToMerge);
 			const mapPlane = new THREE.Mesh(mergedGeometry, material);
 			common.scene.add(mapPlane);
+		}
+	}
+
+	dispose() {
+		common.scene.clear();
+		this.isDisposed = true;
+		common.renderer?.dispose();
+		if(this.intervalTimer){
+			clearInterval(this.intervalTimer);
 		}
 	}
 
