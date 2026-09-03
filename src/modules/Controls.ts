@@ -31,19 +31,9 @@ class Controls {
         `)
       }
     }
-    constructor() {
-      // uNoiseFactors1: new THREE.Vector3(0.78, 0.200, 0.000),
-      // uNoiseFactors2: new THREE.Vector3(0.00, 0.031, 0.000),
-
-      // uColor1: new THREE.Color(0xbed3fe),
-      // uColor2: new THREE.Color(0xffe042),
-      // uColor3: new THREE.Color(0x0055ff),
-      // uColor4: new THREE.Color(0x000c66),
-      // uNoiseFactors1: new THREE.Vector3(0.78, 0.112, 0.000),
-      // uColorFactor: new THREE.Vector3(1.34, 0.16, 5.30),
-    }
 
     init (){
+      this.dispose()
       this.gui = new GUI()
       this.gui.addColor(this.params, 'uColor1').listen()
       this.gui.addColor(this.params, 'uColor2').listen()
@@ -74,7 +64,7 @@ class Controls {
 
       const timeFolder = this.gui.addFolder('Time')
       timeFolder.open()
-      let debugTimeController = timeFolder.add(this.params, 'debugTime', 0, 1000).name('Debug Time')
+      const debugTimeController = timeFolder.add(this.params, 'debugTime', 0, 1000).name('Debug Time')
       debugTimeController.domElement.style.pointerEvents = 'none';
       debugTimeController.domElement.style.opacity = '0.5';
       timeFolder.add(this.params, 'isTimePaused').name('Pause Time').onChange((value: boolean) => {
@@ -95,6 +85,11 @@ class Controls {
 
       this.gui.add(this.params, 'getColors').name('Get Colors')
     }
+
+  dispose() {
+    this.gui?.destroy()
+    this.gui = undefined
+  }
     
   setParams(value: number) {
     this.params.uColor1.copy(datas[value].uColor1)

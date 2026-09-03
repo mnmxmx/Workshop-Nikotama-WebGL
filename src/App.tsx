@@ -1,27 +1,26 @@
-import { useState, useRef, useEffect } from 'react';
-import { BrowserRouter as Router, Link} from 'react-router-dom';
+import { useEffect, useRef } from 'react';
 import Artwork from './modules/Artwork';
 import './scss/App.scss';
 
 const App: React.FC = () => {
-  const [navOpen, setNavOpen] = useState(true);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  useEffect (() => {
+  useEffect(() => {
+    if (!wrapperRef.current || !canvasRef.current) return;
+
     const artwork = new Artwork({
-      $wrapper: document.querySelector('.wrapper') as HTMLElement,
-      $canvas: document.querySelector('.canvas') as HTMLCanvasElement
+      wrapper: wrapperRef.current,
+      canvas: canvasRef.current,
     });
 
-    return () => {
-      artwork.dispose();
-    }
-  }, [])
+    return () => artwork.dispose();
+  }, []);
+
   return (
-    <Router>
-      <div className="wrapper">
-        <canvas className="canvas" />
-      </div>
-    </Router>
+    <div ref={wrapperRef} className="wrapper">
+      <canvas ref={canvasRef} className="canvas" />
+    </div>
   );
 }
 

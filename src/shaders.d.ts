@@ -1,3 +1,7 @@
+/// <reference types="vite/client" />
+
+declare module '*.scss'
+
 declare module '*.glsl' {
   const shader: string
   export default shader

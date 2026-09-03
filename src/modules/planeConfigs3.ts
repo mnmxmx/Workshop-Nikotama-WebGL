@@ -6,8 +6,6 @@ export const resolution3 = new THREE.Vector2(672, 480)
 const cubeSize = 288;
 
 const width1 = 96
-const width2 = 128
-const height2 = 64
 
 const heightF = 192
 

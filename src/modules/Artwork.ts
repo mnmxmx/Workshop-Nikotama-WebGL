@@ -4,7 +4,7 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import { resolution1, planeConfigs1 } from "./planeConfigs1";
 import { resolution2, planeConfigs2 } from "./planeConfigs2";
 import { resolution3, planeConfigs3 } from "./planeConfigs3";
-import { PlaneConfigType } from "./planeConfigType";
+import type { PlaneConfigType } from "./planeConfigType";
 import datas from "./datas";
 
 import controls from "./Controls";
@@ -27,23 +27,25 @@ const planeConfigs: Record<string, { resolution: THREE.Vector2; planeConfigs: Pl
 	}
 }
 
+type CubeType = keyof typeof planeConfigs
 
 interface ArtworkProps {
-    $wrapper: HTMLElement;
-		$canvas: HTMLCanvasElement;
+	wrapper: HTMLElement;
+	canvas: HTMLCanvasElement;
 }
 
 
 export default class Artwork{
 	private props: ArtworkProps;
-	private isDisposed: boolean | undefined;
+	private isDisposed = false;
+	private animationFrame?: number;
 	clock: THREE.Clock = new THREE.Clock();
 	delta: number = 0;
 	time: number = 100 * Math.random()
-	material: any
-	cubeType: keyof typeof planeConfigs = 'type2'
+	material?: THREE.ShaderMaterial
+	cubeType: CubeType = 'type2'
 	isDebug: boolean = true
-	intervalTimer: any
+	intervalTimer?: ReturnType<typeof setInterval>
 	progress: {
 		current: number;
 		target: number;
@@ -82,10 +84,10 @@ export default class Artwork{
 		// Set cubeType from URL query, default to 'type2'
 		const cubeTypeParam = urlParams.get('cubeType');
 		if (cubeTypeParam && cubeTypeParam in planeConfigs) {
-			this.cubeType = cubeTypeParam as keyof typeof planeConfigs;
+			this.cubeType = cubeTypeParam as CubeType;
 		}
 
-		switch(cubeTypeParam) {
+		switch(this.cubeType) {
 			case 'type1':
 				controls.params.uRotateDist.set(-1, -1);
 				this.uniforms.uCubeScale.value.x = 1.2;
@@ -106,16 +108,18 @@ export default class Artwork{
 			this.isDebug = debugParam === 'true' || debugParam === '1';
 		}
 
-		const colorIndex = urlParams.get('colorIndex');
-		if (colorIndex !== null) {
-			const index = parseInt(colorIndex);	
-			controls.setParams(index)
+		const colorIndexParam = Number.parseInt(urlParams.get('colorIndex') ?? '', 10);
+		const colorIndex = Number.isInteger(colorIndexParam) && colorIndexParam >= 0 && colorIndexParam < datas.length
+			? colorIndexParam
+			: undefined;
+		if (colorIndex !== undefined) {
+			controls.setParams(colorIndex)
 		}
 
 		controls.init();
 
 
-		if(colorIndex === null){
+		if(colorIndex === undefined){
 			// set different initial color based on cube type
 			const activeIndiceArray: number[] = [];
 
@@ -127,7 +131,7 @@ export default class Artwork{
 
 			activeIndiceArray.push(cubeIndex1, cubeIndex2, cubeIndex3);
 
-			switch(cubeTypeParam) {
+			switch(this.cubeType) {
 				case 'type1':
 					controls._targetIndex = activeIndiceArray[0];
 					controls.params.activeIndex = activeIndiceArray[0];
@@ -150,7 +154,8 @@ export default class Artwork{
 		this.init();
 		this.loop()
 
-		const interval = urlParams.get('interval') || '300';
+		const intervalParam = Number.parseInt(urlParams.get('interval') ?? '', 10);
+		const interval = Number.isInteger(intervalParam) && intervalParam > 0 ? intervalParam : 300;
 
 		this.intervalTimer = setInterval(() => {
 			controls.params.activeIndex = controls._targetIndex;
@@ -160,13 +165,13 @@ export default class Artwork{
 
 			this.progressColor.current = 0;
 			this.progressColor.target = 1;
-		}, 1000 * parseInt(interval))
+		}, 1000 * interval)
 	}
 
 	init(){
 		common.init({
-			$wrapper: this.props.$wrapper,
-			$canvas: this.props.$canvas,
+			wrapper: this.props.wrapper,
+			canvas: this.props.canvas,
 			width: planeConfigs[this.cubeType].resolution.x,
 			height: planeConfigs[this.cubeType].resolution.y
 		});
@@ -182,6 +187,7 @@ export default class Artwork{
 				IS_DEBUG: this.isDebug ? 1 : 0
 			}
 		})
+		this.material = material
 
 		planeConfigs[this.cubeType].planeConfigs.forEach((config) => {
 			// const material = new THREE.MeshBasicMaterial({ map: plane.fbo.texture, side: THREE.DoubleSide })
@@ -205,23 +211,34 @@ export default class Artwork{
 				geometry.translate(config.screenPosition.x, config.screenPosition.y, 0);
 				geometry.setAttribute('initialPosition', initialPosition)
 				geometriesToMerge.push(geometry);
+				debugGeometry.dispose()
 			}
 		})
 
 		if(!this.isDebug){
 			const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometriesToMerge);
+			geometriesToMerge.forEach((geometry) => geometry.dispose())
 			const mapPlane = new THREE.Mesh(mergedGeometry, material);
 			common.scene.add(mapPlane);
 		}
 	}
 
 	dispose() {
-		common.scene.clear();
 		this.isDisposed = true;
-		common.renderer?.dispose();
+		if (this.animationFrame !== undefined) {
+			cancelAnimationFrame(this.animationFrame)
+		}
 		if(this.intervalTimer){
 			clearInterval(this.intervalTimer);
 		}
+		common.scene.traverse((object) => {
+			if (object instanceof THREE.Mesh) object.geometry.dispose()
+		})
+		common.scene.clear();
+		this.material?.dispose()
+		this.material = undefined
+		controls.dispose()
+		common.dispose()
 	}
 
 	update(){
@@ -249,11 +266,10 @@ export default class Artwork{
 		}
 	}
 
-	loop(){
+	loop = () => {
 		if(!this.isDisposed){
 			this.update();
-			window.requestAnimationFrame(this.loop.bind(this));
+			this.animationFrame = window.requestAnimationFrame(this.loop);
 		}
-			
 	}
 }
