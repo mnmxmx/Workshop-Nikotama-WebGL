@@ -4,14 +4,19 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import { resolution1, planeConfigs1 } from "./planeConfigs1";
 import { resolution2, planeConfigs2 } from "./planeConfigs2";
 import { resolution3, planeConfigs3 } from "./planeConfigs3";
-import { PlaneConfigType } from "./planeConfigType";
+import type { PlaneConfigType } from "./planeConfigType";
 
 import controls from "./Controls";
 
 import cubeVert from './glsl/cube.vert'
 import cubeFrag from './glsl/cube.frag'
 
-const planeConfigs: Record<string, { resolution: THREE.Vector2; planeConfigs: PlaneConfigType[] }> = {
+type PlaneConfigSet = {
+	resolution: THREE.Vector2
+	planeConfigs: PlaneConfigType[]
+}
+
+const planeConfigs = {
 	type1: {
 		resolution: resolution1,
 		planeConfigs: planeConfigs1
@@ -24,42 +29,38 @@ const planeConfigs: Record<string, { resolution: THREE.Vector2; planeConfigs: Pl
 		resolution: resolution3,
 		planeConfigs: planeConfigs3
 	}
-}
+} satisfies Record<string, PlaneConfigSet>
 
+type CubeType = keyof typeof planeConfigs
 
 interface ArtworkProps {
-    $wrapper: HTMLElement;
-		$canvas: HTMLCanvasElement;
+	wrapper: HTMLElement;
+	canvas: HTMLCanvasElement;
 }
 
+function isCubeType(value: string | null): value is CubeType {
+	return value !== null && value in planeConfigs
+}
 
 export default class Artwork{
-	private props: ArtworkProps;
-	private isDisposed: boolean | undefined;
-	clock: THREE.Clock = new THREE.Clock();
-	delta: number = 0;
-	time: number = 0
-	material?: THREE.ShaderMaterial
-	cubeType: keyof typeof planeConfigs = 'type2'
-	isDebug: boolean = true
-	intervalTimer: any
-	uniforms = {
+	private readonly clock = new THREE.Clock()
+	private readonly uniforms = {
 		uTime: { value: 0 },
 	}
+	private animationFrame?: number
+	private isDisposed = false
+	private material?: THREE.ShaderMaterial
+	private time = 0
+	private cubeType: CubeType = 'type2'
+	private isDebug = true
 
-	constructor(props: ArtworkProps){
-		this.props = props;
-		
-		// Get URL query parameters
+	constructor(private readonly props: ArtworkProps){
 		const urlParams = new URLSearchParams(window.location.search);
-		
-		// Set cubeType from URL query, default to 'type2'
 		const cubeTypeParam = urlParams.get('cubeType');
-		if (cubeTypeParam && cubeTypeParam in planeConfigs) {
-			this.cubeType = cubeTypeParam as keyof typeof planeConfigs;
+		if (isCubeType(cubeTypeParam)) {
+			this.cubeType = cubeTypeParam;
 		}
 
-		// Set debug mode from URL query, default to true
 		const debugParam = urlParams.get('debug');
 		if (debugParam !== null) {
 			this.isDebug = debugParam === 'true' || debugParam === '1';
@@ -67,7 +68,7 @@ export default class Artwork{
 
 		controls.init((renderMode) => {
 			if (this.material) {
-				this.material.defines.RENDER_MODE = renderMode
+				this.material.defines.RENDER_MODE = renderMode;
 				this.material.needsUpdate = true
 			}
 		});
@@ -76,17 +77,17 @@ export default class Artwork{
 		this.loop()
 	}
 
-	init(){
+	private init(){
 		common.init({
-			$wrapper: this.props.$wrapper,
-			$canvas: this.props.$canvas,
+			wrapper: this.props.wrapper,
+			canvas: this.props.canvas,
 			width: planeConfigs[this.cubeType].resolution.x,
 			height: planeConfigs[this.cubeType].resolution.y
 		});
 
 		const geometriesToMerge: THREE.BufferGeometry[] = [];
 
-		this.material = new THREE.ShaderMaterial({
+		const material = new THREE.ShaderMaterial({
 			vertexShader: cubeVert,
 			fragmentShader: cubeFrag,
 			uniforms: this.uniforms,
@@ -96,6 +97,7 @@ export default class Artwork{
 				RENDER_MODE: controls.params.renderMode,
 			}
 		})
+		this.material = material
 
 		planeConfigs[this.cubeType].planeConfigs.forEach((config) => {
 			const debugGeometry = new THREE.PlaneGeometry(1, 1);
@@ -110,36 +112,44 @@ export default class Artwork{
 			debugGeometry.setAttribute('initialPosition', initialPosition)
 
 			if(this.isDebug){
-				const debugPlane = new THREE.Mesh(debugGeometry, this.material);
+				const debugPlane = new THREE.Mesh(debugGeometry, material);
 				common.scene.add(debugPlane)
 			} else {
 				const geometry = new THREE.PlaneGeometry(config.fboSize.x, config.fboSize.y)
 				geometry.translate(config.screenPosition.x, config.screenPosition.y, 0);
 				geometry.setAttribute('initialPosition', initialPosition)
 				geometriesToMerge.push(geometry);
+				debugGeometry.dispose()
 			}
 		})
 
 		if(!this.isDebug){
 			const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometriesToMerge);
-			const mapPlane = new THREE.Mesh(mergedGeometry, this.material);
+			geometriesToMerge.forEach((geometry) => geometry.dispose())
+			const mapPlane = new THREE.Mesh(mergedGeometry, material);
 			common.scene.add(mapPlane);
 		}
 	}
 
 	dispose() {
-		common.scene.clear();
 		this.isDisposed = true;
-		common.renderer?.dispose();
-		if(this.intervalTimer){
-			clearInterval(this.intervalTimer);
+		if (this.animationFrame !== undefined) {
+			cancelAnimationFrame(this.animationFrame)
 		}
+		common.scene.traverse((object) => {
+			if (object instanceof THREE.Mesh) object.geometry.dispose()
+		})
+		common.scene.clear();
+		this.material?.dispose()
+		this.material = undefined
+		controls.dispose()
+		common.dispose()
 	}
 
-	update(){
-		this.delta = this.clock.getDelta();
+	private update(){
+		const delta = this.clock.getDelta();
 		common.renderer?.setRenderTarget(null);
-		this.time += this.delta;
+		this.time += delta;
 
 		if (controls.params.isTimePaused) {
 			this.uniforms.uTime.value = controls.params.debugTime;
@@ -153,11 +163,10 @@ export default class Artwork{
 		}
 	}
 
-	loop(){
+	private loop = () => {
 		if(!this.isDisposed){
 			this.update();
-			window.requestAnimationFrame(this.loop.bind(this));
+			this.animationFrame = window.requestAnimationFrame(this.loop);
 		}
-			
 	}
 }

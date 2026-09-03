@@ -1,8 +1,8 @@
 import { resolve } from 'path';
 import glsl from 'vite-plugin-glsl'
-const root = resolve(__dirname, 'src');
-import vue from '@vitejs/plugin-vue'
 import react from '@vitejs/plugin-react'
+
+const root = resolve(__dirname, 'src');
 
 export default {
   root,
@@ -19,22 +19,11 @@ export default {
     },
   },
   plugins: [
-    glsl(
-      {
-        include: [
-          '**/*.glsl', '**/*.wgsl',
-          '**/*.vert', '**/*.frag',
-          '**/*.vs', '**/*.fs'
-        ],
-        exclude: undefined,          // Glob pattern, or array of glob patterns to ignore
-        warnDuplicatedImports: true, // Warn if the same chunk was imported multiple times
-        defaultExtension: 'glsl',    // Shader suffix when no extension is specified
-        compress: false,             // Compress output shader code
-        watch: true,                 // Recompile shader on change
-        root: '/'                    // Directory for root imports
-      }
-    ),
-    vue(),
+    glsl({
+      include: ['**/*.glsl', '**/*.vert', '**/*.frag'],
+      warnDuplicatedImports: true,
+      compress: false,
+    }),
     react()
   ],
   server: {

@@ -1,33 +1,30 @@
 import * as THREE from "three"
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 class Common {
-	$wrapper: HTMLElement | null = null
-	$canvas: HTMLCanvasElement | null = null
-	pixelRatio: number = 1
-	camera: THREE.OrthographicCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 50)
-	debugCamera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100)
-	scene: THREE.Scene = new THREE.Scene()
+	pixelRatio = 1
+	camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 50)
+	debugCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100)
+	scene = new THREE.Scene()
 	renderer?: THREE.WebGLRenderer
-	controls!: OrbitControls
+	controls?: OrbitControls
 	
 	constructor() {
 		this.camera.position.set(0, 0, 5);
 		this.debugCamera.position.set(0, 0, 3);
 	}
 
-	init({$wrapper, $canvas, width, height}: { $wrapper: HTMLElement | null, $canvas: HTMLCanvasElement | null, width: number, height: number}) {
+	init({wrapper, canvas, width, height}: { wrapper: HTMLElement, canvas: HTMLCanvasElement, width: number, height: number}) {
 
 		this.renderer = new THREE.WebGLRenderer({
 				antialias: true,
 				alpha: true,
-				canvas: $canvas || undefined
+				canvas
 		});
 
-		this.controls = new OrbitControls( this.debugCamera, this.renderer.domElement );
+		this.controls = new OrbitControls(this.debugCamera, this.renderer.domElement);
 
-		this.$canvas = this.renderer.domElement;
-		if($wrapper) $wrapper.appendChild(this.$canvas);
+		if (!wrapper.contains(this.renderer.domElement)) wrapper.appendChild(this.renderer.domElement);
 		this.renderer.setPixelRatio(this.pixelRatio);
 		this.renderer.setClearColor(0xf1f1f1, 1);
 
@@ -44,7 +41,14 @@ class Common {
 
 		this.debugCamera.aspect = width / height;
 		this.debugCamera.updateProjectionMatrix();
-		this.controls.update();
+		this.controls?.update();
+	}
+
+	dispose() {
+		this.controls?.dispose()
+		this.controls = undefined
+		this.renderer?.dispose()
+		this.renderer = undefined
 	}
 }
 
