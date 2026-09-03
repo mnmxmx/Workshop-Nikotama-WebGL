@@ -5,7 +5,6 @@ import { resolution1, planeConfigs1 } from "./planeConfigs1";
 import { resolution2, planeConfigs2 } from "./planeConfigs2";
 import { resolution3, planeConfigs3 } from "./planeConfigs3";
 import { PlaneConfigType } from "./planeConfigType";
-import datas from "./datas";
 
 import controls from "./Controls";
 
@@ -39,38 +38,14 @@ export default class Artwork{
 	private isDisposed: boolean | undefined;
 	clock: THREE.Clock = new THREE.Clock();
 	delta: number = 0;
-	time: number = 100 * Math.random()
+	time: number = 0
 	material: any
 	cubeType: keyof typeof planeConfigs = 'type2'
 	isDebug: boolean = true
 	intervalTimer: any
-	progress: {
-		current: number;
-		target: number;
-	} = {
-		current: 0,
-		target: 0
-	}
-	progressColor: {
-		current: number;
-		target: number;
-	} = {
-		current: 0,
-		target: 0
-	}
 	uniforms = {
-		uTime: {
-			value: 43200
-		},
-		uRotateDist: { value: controls.params.uRotateDist },
-		uColor1: { value: controls.params.uColor1 },
-		uColor2: { value: controls.params.uColor2 },
-		uColor3: { value: controls.params.uColor3 },
-		uColor4: { value: controls.params.uColor4 },
-		uNoiseFactors1: { value: controls.params.uNoiseFactors1 },
-		uNoisePosScale: { value: controls.params.uNoisePosScale },
-		uColorFactor: { value: controls.params.uColorFactor },
-		uCubeScale: { value: new THREE.Vector3(1, 1, 1)}
+		uTime: { value: 0 },
+		uCubeScale: { value: 1}
 	}
 
 	constructor(props: ArtworkProps){
@@ -87,16 +62,13 @@ export default class Artwork{
 
 		switch(cubeTypeParam) {
 			case 'type1':
-				controls.params.uRotateDist.set(-1, -1);
-				this.uniforms.uCubeScale.value.x = 1.2;
+				this.uniforms.uCubeScale.value = 1.2;
 				break;
 			case 'type2':
-				controls.params.uRotateDist.set(-1, 1);
-				this.uniforms.uCubeScale.value.x = 1;
+				this.uniforms.uCubeScale.value = 1;
 				break;
 			case 'type3':
-				controls.params.uRotateDist.set(1, -1);
-				this.uniforms.uCubeScale.value.x = 0.9;
+				this.uniforms.uCubeScale.value = 0.9;
 				break;
 		}
 		
@@ -106,61 +78,10 @@ export default class Artwork{
 			this.isDebug = debugParam === 'true' || debugParam === '1';
 		}
 
-		const colorIndex = urlParams.get('colorIndex');
-		if (colorIndex !== null) {
-			const index = parseInt(colorIndex);	
-			controls.setParams(index)
-		}
-
 		controls.init();
-
-
-		if(colorIndex === null){
-			// set different initial color based on cube type
-			const activeIndiceArray: number[] = [];
-
-			const time = Math.floor(Date.now() / 10000);
-			// choose cubeIndex by using time as seed
-			const cubeIndex1 = (time) % datas.length;
-			const cubeIndex2 = (time + 4) % datas.length;
-			const cubeIndex3 = (time + 8) % datas.length;
-
-			activeIndiceArray.push(cubeIndex1, cubeIndex2, cubeIndex3);
-
-			switch(cubeTypeParam) {
-				case 'type1':
-					controls._targetIndex = activeIndiceArray[0];
-					controls.params.activeIndex = activeIndiceArray[0];
-					controls.setParams(controls.params.activeIndex)
-					break;
-				case 'type2':
-					controls._targetIndex = activeIndiceArray[1];
-					controls.params.activeIndex = activeIndiceArray[1];
-					controls.setParams(controls.params.activeIndex)
-					break;
-				case 'type3':
-					controls._targetIndex = activeIndiceArray[2];
-					controls.params.activeIndex = activeIndiceArray[2];
-					controls.setParams(controls.params.activeIndex)
-					break;
-			}
-			
-		}
 		
 		this.init();
 		this.loop()
-
-		const interval = urlParams.get('interval') || '300';
-
-		this.intervalTimer = setInterval(() => {
-			controls.params.activeIndex = controls._targetIndex;
-			controls._targetIndex = (controls._targetIndex + 1) % datas.length;
-			this.progress.current = 0;
-			this.progress.target = 1;
-
-			this.progressColor.current = 0;
-			this.progressColor.target = 1;
-		}, 1000 * parseInt(interval))
 	}
 
 	init(){
@@ -184,8 +105,6 @@ export default class Artwork{
 		})
 
 		planeConfigs[this.cubeType].planeConfigs.forEach((config) => {
-			// const material = new THREE.MeshBasicMaterial({ map: plane.fbo.texture, side: THREE.DoubleSide })
-
 			const debugGeometry = new THREE.PlaneGeometry(1, 1);
 			debugGeometry.translate(0, 0, 0.5)
 			debugGeometry.translate(-config.offsetPos.x, -config.offsetPos.y, 0)
@@ -235,12 +154,6 @@ export default class Artwork{
 			this.uniforms.uTime.value = this.time
 		}
 
-		this.progress.current += (this.progress.target - this.progress.current) * Math.min(1, this.delta * 1);
-		this.progressColor.current += (this.progressColor.target - this.progressColor.current) * Math.min(1, this.delta);
-
-		if (!controls.params.stopTransition) {
-			controls.lerpParams(this.progressColor.current, this.progress.current);
-		}
 
 		if(this.isDebug) {
 			common.renderer?.render(common.scene, common.debugCamera);
