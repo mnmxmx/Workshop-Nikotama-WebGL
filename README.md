@@ -1,7 +1,7 @@
 # Nikotama-WebGL
 
 ## Node.js
-v16.14.0
+v19.7.0
 
 ## Setup
 ```bash
