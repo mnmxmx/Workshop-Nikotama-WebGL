@@ -10,8 +10,7 @@ import datas from "./datas";
 import controls from "./Controls";
 
 import cubeVert from './glsl/cube.vert'
-import cube1Frag from './glsl/cube1.frag'
-import utilsGlsl from './glsl/utils/utils.glsl'
+import cubeFrag from './glsl/cube.frag'
 
 const planeConfigs: Record<string, { resolution: THREE.Vector2; planeConfigs: PlaneConfigType[] }> = {
 	type1: {
@@ -176,7 +175,7 @@ export default class Artwork{
 
 		const material = new THREE.ShaderMaterial({
 			vertexShader: cubeVert,
-			fragmentShader: utilsGlsl + cube1Frag,
+			fragmentShader: cubeFrag,
 			uniforms: this.uniforms,
 			side: THREE.DoubleSide,
 			defines: {

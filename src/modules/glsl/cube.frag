@@ -1,4 +1,7 @@
-export default `
+#include "./utils/hsv2rgb.glsl"
+#include "./utils/rgb2hsv.glsl"
+#include "./utils/snoise3d.glsl"
+
 uniform vec2 uRotateDist;
 uniform float uTime;
 uniform vec3 uColor1;
@@ -54,13 +57,13 @@ vec3 calcColor(vec3 uvw, vec3 c1, vec3 c2, vec3 c3, vec3 c4) {
 
 mat2 rotate2D(float angle) {
   float s = sin(angle);
-  float c = cos(angle); 
+  float c = cos(angle);
 
   return mat2(
     c, -s,
     s,  c
   );
-} 
+}
 
 void main(){
   vec3 uvw = vPosition;
@@ -72,7 +75,6 @@ void main(){
   vec3 newUvw_1 = uvw;
 
   float time = sin(uTime * 0.015 * PI) * 2.0 / uCubeScale.x;
-
 
   newUvw_1 += time;
 
@@ -86,7 +88,6 @@ void main(){
   hsv.y += (newUvw_1.x + newUvw_1.y) * 0.05;
   hsv.z += (newUvw_1.x + newUvw_1.z) * 0.05;
   color = hsv2rgb(hsv);
-
 
   vec3 uv3 = vPosition;
 
@@ -102,4 +103,3 @@ void main(){
 
   gl_FragColor = vec4(color, 1.0);
 }
-`
