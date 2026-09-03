@@ -45,7 +45,6 @@ export default class Artwork{
 	intervalTimer: any
 	uniforms = {
 		uTime: { value: 0 },
-		uCubeScale: { value: 1}
 	}
 
 	constructor(props: ArtworkProps){
@@ -60,18 +59,6 @@ export default class Artwork{
 			this.cubeType = cubeTypeParam as keyof typeof planeConfigs;
 		}
 
-		switch(cubeTypeParam) {
-			case 'type1':
-				this.uniforms.uCubeScale.value = 1.2;
-				break;
-			case 'type2':
-				this.uniforms.uCubeScale.value = 1;
-				break;
-			case 'type3':
-				this.uniforms.uCubeScale.value = 0.9;
-				break;
-		}
-		
 		// Set debug mode from URL query, default to true
 		const debugParam = urlParams.get('debug');
 		if (debugParam !== null) {
