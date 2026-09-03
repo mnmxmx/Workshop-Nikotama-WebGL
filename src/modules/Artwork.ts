@@ -39,7 +39,7 @@ export default class Artwork{
 	clock: THREE.Clock = new THREE.Clock();
 	delta: number = 0;
 	time: number = 0
-	material: any
+	material?: THREE.ShaderMaterial
 	cubeType: keyof typeof planeConfigs = 'type2'
 	isDebug: boolean = true
 	intervalTimer: any
@@ -65,7 +65,12 @@ export default class Artwork{
 			this.isDebug = debugParam === 'true' || debugParam === '1';
 		}
 
-		controls.init();
+		controls.init((renderMode) => {
+			if (this.material) {
+				this.material.defines.RENDER_MODE = renderMode
+				this.material.needsUpdate = true
+			}
+		});
 		
 		this.init();
 		this.loop()
@@ -81,13 +86,14 @@ export default class Artwork{
 
 		const geometriesToMerge: THREE.BufferGeometry[] = [];
 
-		const material = new THREE.ShaderMaterial({
+		this.material = new THREE.ShaderMaterial({
 			vertexShader: cubeVert,
 			fragmentShader: cubeFrag,
 			uniforms: this.uniforms,
 			side: THREE.DoubleSide,
 			defines: {
-				IS_DEBUG: this.isDebug ? 1 : 0
+				IS_DEBUG: this.isDebug ? 1 : 0,
+				RENDER_MODE: controls.params.renderMode,
 			}
 		})
 
@@ -104,7 +110,7 @@ export default class Artwork{
 			debugGeometry.setAttribute('initialPosition', initialPosition)
 
 			if(this.isDebug){
-				const debugPlane = new THREE.Mesh(debugGeometry, material);
+				const debugPlane = new THREE.Mesh(debugGeometry, this.material);
 				common.scene.add(debugPlane)
 			} else {
 				const geometry = new THREE.PlaneGeometry(config.fboSize.x, config.fboSize.y)
@@ -116,7 +122,7 @@ export default class Artwork{
 
 		if(!this.isDebug){
 			const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometriesToMerge);
-			const mapPlane = new THREE.Mesh(mergedGeometry, material);
+			const mapPlane = new THREE.Mesh(mergedGeometry, this.material);
 			common.scene.add(mapPlane);
 		}
 	}
@@ -140,8 +146,6 @@ export default class Artwork{
 		} else {
 			this.uniforms.uTime.value = this.time
 		}
-
-
 		if(this.isDebug) {
 			common.renderer?.render(common.scene, common.debugCamera);
 		} else {

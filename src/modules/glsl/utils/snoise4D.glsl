@@ -1,9 +1,9 @@
 //	Simplex 4D Noise 
 //	by Ian McEwan, Ashima Arts
 //
-// vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
 float permute(float x){return floor(mod(((x*34.0)+1.0)*x, 289.0));}
-// vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 float taylorInvSqrt(float r){return 1.79284291400159 - 0.85373472095314 * r;}
 
 vec4 grad4(float j, vec4 ip){
