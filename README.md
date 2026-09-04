@@ -40,6 +40,3 @@ http://localhost:5173/?cubeType=type3&debug=false&colorIndex=6&interval=60
 
 Use the same query string after the path in deployed environments. Unsupported
 parameter values are not part of the specification and should not be relied upon.
-
-## Rendering System
-![the image of Rendering system](./docs/image1.jpg)
