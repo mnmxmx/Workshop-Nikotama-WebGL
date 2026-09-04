@@ -1,7 +1,6 @@
 import { resolve } from 'path';
 import glsl from 'vite-plugin-glsl'
 const root = resolve(__dirname, 'src');
-import vue from '@vitejs/plugin-vue'
 import react from '@vitejs/plugin-react'
 
 export default {
@@ -34,7 +33,6 @@ export default {
         root: '/'                    // Directory for root imports
       }
     ),
-    vue(),
     react()
   ],
   server: {
