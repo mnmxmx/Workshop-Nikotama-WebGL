@@ -28,14 +28,11 @@ Parameter names and values are case-sensitive.
 | --- | --- | --- | --- |
 | `cubeType` | `type1`, `type2`, `type3` | `type2` | Selects the cube layout/version. |
 | `debug` | `true` or `1` to enable; any other supplied value disables | `true` | Selects the debug camera and separated cube-face view. Use `debug=false` for the composed output. |
-| `colorIndex` | Integer from `0` through `11` | Time-based preset | Selects the initial color preset. |
-| `interval` | Positive integer, in seconds | `300` | Sets how often the color preset transitions to the next preset. |
 
-Combine parameters with `&`. For example, the composed Type 3 version using color
-preset 6 and changing color every 60 seconds is:
+Combine parameters with `&`. For example, the composed Type 3 version is:
 
 ```text
-http://localhost:5173/?cubeType=type3&debug=false&colorIndex=6&interval=60
+http://localhost:5173/?cubeType=type3&debug=false
 ```
 
 Use the same query string after the path in deployed environments. Unsupported
